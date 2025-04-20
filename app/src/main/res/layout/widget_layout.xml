@@ -15,7 +15,9 @@
         android:layout_height="wrap_content"
         android:text="Silent"
         android:textColor="#ffffff"
-        android:background="#444" />
+        android:background="#444"
+        android:clickable="true"
+        android:focusable="true" />
 
     <Button
         android:id="@+id/btn_widget_vibrate"
@@ -24,7 +26,9 @@
         android:layout_height="wrap_content"
         android:text="Vibrate"
         android:textColor="#ffffff"
-        android:background="#444" />
+        android:background="#444"
+        android:clickable="true"
+        android:focusable="true" />
 
     <Button
         android:id="@+id/btn_widget_ring"
@@ -33,5 +37,7 @@
         android:layout_height="wrap_content"
         android:text="Ring"
         android:textColor="#ffffff"
-        android:background="#444" />
+        android:background="#444"
+        android:clickable="true"
+        android:focusable="true" />
 </LinearLayout>

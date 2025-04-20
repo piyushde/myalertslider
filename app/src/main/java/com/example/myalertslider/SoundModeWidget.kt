@@ -64,27 +64,52 @@ class SoundModeWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (widgetId in appWidgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_layout)
-
-            views.setOnClickPendingIntent(
-                R.id.btn_widget_silent,
-                createPendingIntent(context, ACTION_SILENT)
-            )
-
-            views.setOnClickPendingIntent(
-                R.id.btn_widget_vibrate,
-                createPendingIntent(context, ACTION_VIBRATE)
-            )
-
-            views.setOnClickPendingIntent(
-                R.id.btn_widget_ring,
-                createPendingIntent(context, ACTION_RING)
-            )
-
-            appWidgetManager.updateAppWidget(widgetId, views)
+            updateAppWidget(context, appWidgetManager, widgetId)
         }
 
         Log.d(TAG, "Widget onUpdate: PendingIntents set")
+    }
+
+    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        val views = RemoteViews(context.packageName, R.layout.widget_layout)
+
+        // Set up click listeners
+        views.setOnClickPendingIntent(
+            R.id.btn_widget_silent,
+            createPendingIntent(context, ACTION_SILENT)
+        )
+
+        views.setOnClickPendingIntent(
+            R.id.btn_widget_vibrate,
+            createPendingIntent(context, ACTION_VIBRATE)
+        )
+
+        views.setOnClickPendingIntent(
+            R.id.btn_widget_ring,
+            createPendingIntent(context, ACTION_RING)
+        )
+
+        // Update button appearance based on current mode
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        when (audioManager.ringerMode) {
+            AudioManager.RINGER_MODE_SILENT -> {
+                views.setTextColor(R.id.btn_widget_silent, context.getColor(R.color.purple_500))
+                views.setTextColor(R.id.btn_widget_vibrate, context.getColor(R.color.white))
+                views.setTextColor(R.id.btn_widget_ring, context.getColor(R.color.white))
+            }
+            AudioManager.RINGER_MODE_VIBRATE -> {
+                views.setTextColor(R.id.btn_widget_silent, context.getColor(R.color.white))
+                views.setTextColor(R.id.btn_widget_vibrate, context.getColor(R.color.purple_500))
+                views.setTextColor(R.id.btn_widget_ring, context.getColor(R.color.white))
+            }
+            AudioManager.RINGER_MODE_NORMAL -> {
+                views.setTextColor(R.id.btn_widget_silent, context.getColor(R.color.white))
+                views.setTextColor(R.id.btn_widget_vibrate, context.getColor(R.color.white))
+                views.setTextColor(R.id.btn_widget_ring, context.getColor(R.color.purple_500))
+            }
+        }
+
+        appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
     private fun createPendingIntent(context: Context, action: String): PendingIntent {
@@ -106,7 +131,13 @@ class SoundModeWidget : AppWidgetProvider() {
     private fun updateWidgetUI(context: Context) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val widgetComponent = ComponentName(context, SoundModeWidget::class.java)
-        val views = RemoteViews(context.packageName, R.layout.widget_layout)
-        appWidgetManager.updateAppWidget(widgetComponent, views)
+        val widgetIds = appWidgetManager.getAppWidgetIds(widgetComponent)
+
+        for (widgetId in widgetIds) {
+            updateAppWidget(context, appWidgetManager, widgetId)
+        }
+
+        // Optionally force update widget
+        appWidgetManager.notifyAppWidgetViewDataChanged(widgetIds, android.R.id.list)
     }
 }
